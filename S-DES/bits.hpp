@@ -1,3 +1,5 @@
+// C++17
+
 #pragma once
 
 template <unsigned Taille, typename type = unsigned>
@@ -143,4 +145,45 @@ bits<Taille, type> operator >>(const bits<Taille, type>& Bits, unsigned Nombre) 
 	auto Retour{ Bits };
 
 	return Retour >>= Nombre;
+}
+
+// Fonctionne
+template <unsigned Taille, typename type>
+auto couper(const bits<Taille, type>& Bits)
+{
+	static_assert(Taille % 2 == 0);
+
+	struct retour
+	{
+		bits<Taille / 2, type> Premier;
+		bits<Taille / 2, type> Deuxieme;
+	};
+
+	return retour{ (Bits >> (Taille / 2)).Bits, Bits.Bits };
+}
+
+// Fonctionne
+template <unsigned Taille, typename type>
+bits<Taille * 2, type> fusionner(const bits<Taille, type>& Premier, const bits<Taille, type>& Deuxieme)
+{
+	bits<Taille * 2, type> Retour{ Premier.Bits };
+	Retour <<= Taille;
+	Retour.Bits |= Deuxieme.Bits;
+	return Retour;
+}
+
+// Fonctionne
+template <unsigned Taille, typename type>
+bits<Taille, type> rotation_gauche(const bits<Taille, type>& Bits)
+{
+	return (Bits << 1) | (Bits >> (Taille - 1));
+}
+
+// Fonctionne
+template <unsigned Taille, typename type>
+const bits<Taille, type> double_rotation_gauche(const bits<Taille, type>& Bits)
+{
+	auto [L, R] { couper(Bits) };
+
+	return fusionner(rotation_gauche(L), rotation_gauche(R));
 }
